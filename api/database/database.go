@@ -6,10 +6,12 @@ import (
 	"github.com/dgraph-io/badger/v4"
 )
 
-func CreateClient() *badger.DB {
+func CreateClient() (*badger.DB, error) {
 	db, err := badger.Open(badger.DefaultOptions("./data"))
 	if err != nil {
-		fmt.Println("Couldn't form connection with db")
+		fmt.Println("Unable to connect to the DB")
+		return nil, err
 	}
-	return db
+
+	return db, err
 }

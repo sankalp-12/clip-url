@@ -1,25 +1,19 @@
 package main
 
 import (
-	"net/http"
+	"log"
+	"os"
 
-	"github.com/gin-gonic/gin"
+	"github.com/sankalp-12/clip-url/database"
+	"github.com/sankalp-12/clip-url/routes"
 )
 
-
-func setupRouter() *gin.Engine {
-	r := gin.Default()
-
-	// Ping test
-	r.GET("/ping", func(c *gin.Context) {
-		c.String(http.StatusOK, "pong")
-	})
-
-	return r
-}
-
 func main() {
-	r := setupRouter()
-	// Listen and Server in 0.0.0.0:8080
-	r.Run(":8080")
+	db, err := database.CreateClient()
+	if err != nil {
+		log.Fatalln("Internal server error: Unable to connect to the DB")
+	}
+
+	r := routes.SetupRouter(db)
+	r.Run(":" + os.Getenv("PORT"))
 }
