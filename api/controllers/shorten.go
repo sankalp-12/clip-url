@@ -1,7 +1,6 @@
 package controllers
 
 import (
-	"fmt"
 	"net/http"
 
 	"github.com/asaskevich/govalidator"
@@ -23,7 +22,7 @@ type Response struct {
 
 func ShortenURL(db *badger.DB, c *gin.Context) {
 	body := new(Request)
-	if err := c.ShouldBind(&body); err != nil {
+	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Bad request",
 			"message": "Request might contain missing fields",
@@ -31,27 +30,26 @@ func ShortenURL(db *badger.DB, c *gin.Context) {
 		return
 	}
 
-	if !govalidator.IsURL(body.URL) || !utils.RemoveDomainError(body.URL) {
+	if !govalidator.IsURL(body.URL) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Bad request",
 			"message": "Invalid URL",
 		})
 		return
 	}
-	body.URL = utils.EnforceHTTP(body.URL)
 
-	var newURL string
-
-	if flag, oldURL := utils.CheckCollisions(db, []byte("w:"), body.URL); flag {
-		c.JSON(http.StatusOK, Response{
-			URL:    body.URL,
-			NewURL: oldURL,
+	if !utils.RemoveDomainError(body.URL) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error":   "Bad request",
+			"message": "URL requested is forbidden",
 		})
 		return
 	}
+	body.URL = utils.EnforceHTTP(body.URL)
 
+	var newURL string
 	if body.Custom != "" {
-		if flag, _ := utils.CheckCollisions(db, []byte("r:"), body.Custom); flag {
+		if flag, _ := utils.CheckCollisions(db, []byte("r:"), body.Custom); !flag {
 			newURL = body.Custom
 		} else {
 			c.JSON(http.StatusBadRequest, gin.H{
@@ -61,6 +59,14 @@ func ShortenURL(db *badger.DB, c *gin.Context) {
 			return
 		}
 	} else {
+		if flag, oldURL := utils.CheckCollisions(db, []byte("w:"), body.URL); flag {
+			c.JSON(http.StatusOK, Response{
+				URL:    body.URL,
+				NewURL: oldURL,
+			})
+			return
+		}
+
 		newURL = uuid.New().String()[:6]
 		flag, _ := utils.CheckCollisions(db, []byte("r:"), newURL)
 		for flag {
@@ -69,27 +75,10 @@ func ShortenURL(db *badger.DB, c *gin.Context) {
 		}
 	}
 
-	txn := db.NewTransaction(true)
-	defer txn.Discard()
-
-	key := []byte(fmt.Sprintf("w:%s", body.URL))
-	value := []byte(newURL)
-	err := txn.Set(key, value)
-	if err != nil {
+	if flag, message := utils.WriteToDB(db, body.URL, newURL); !flag {
 		c.JSON(http.StatusInternalServerError, gin.H{
 			"error":   "Internal server error",
-			"message": "Unable to write to the DB",
-		})
-		return
-	}
-
-	key = []byte(fmt.Sprintf("r:%s", newURL))
-	value = []byte(body.URL)
-	err = txn.Set(key, value)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "Internal server error",
-			"message": "Unable to write to the DB",
+			"message": message,
 		})
 		return
 	}

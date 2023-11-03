@@ -13,6 +13,7 @@ func ResolveURL(db *badger.DB, c *gin.Context) {
 
 	if flag, value := utils.CheckCollisions(db, []byte("r:"), url); flag {
 		c.Redirect(http.StatusFound, value)
+		return
 	}
 
 	c.JSON(http.StatusNotFound, gin.H{
