@@ -7,41 +7,35 @@ import (
 	"github.com/dgraph-io/badger/v4"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/sankalp-12/clip-url/models"
 	"github.com/sankalp-12/clip-url/utils"
 )
 
-type Request struct {
-	URL    string `json:"url"`
-	Custom string `json:"custom,omitempty"`
-}
-
-type Response struct {
-	URL    string `json:"url"`
-	NewURL string `json:"new_url"`
-}
-
 func ShortenURL(db *badger.DB, c *gin.Context) {
-	body := new(Request)
+	body := new(models.Request)
 	if err := c.ShouldBindJSON(&body); err != nil {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "Bad request",
-			"message": "Request might contain missing fields",
+		c.JSON(http.StatusBadRequest, models.Response{
+			URL:     body.URL,
+			NewURL:  "",
+			Message: "Bad request: Contains missing fields",
 		})
 		return
 	}
 
 	if !govalidator.IsURL(body.URL) {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "Bad request",
-			"message": "URL requested is invalid",
+		c.JSON(http.StatusBadRequest, models.Response{
+			URL:     body.URL,
+			NewURL:  "",
+			Message: "Bad request: URL is not valid",
 		})
 		return
 	}
 
 	if !utils.RemoveDomainError(body.URL) {
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error":   "Bad request",
-			"message": "URL requested is forbidden",
+		c.JSON(http.StatusBadRequest, models.Response{
+			URL:     body.URL,
+			NewURL:  "",
+			Message: "Bad request: URL is forbidden",
 		})
 		return
 	}
@@ -52,17 +46,19 @@ func ShortenURL(db *badger.DB, c *gin.Context) {
 		if flag, _ := utils.CheckCollisions(db, []byte("r:"), body.Custom); !flag {
 			newURL = body.Custom
 		} else {
-			c.JSON(http.StatusBadRequest, gin.H{
-				"error":   "Bad request",
-				"message": "Custom URL is already in use",
+			c.JSON(http.StatusBadRequest, models.Response{
+				URL:     body.URL,
+				NewURL:  "",
+				Message: "Bad request: Custom URL already exists",
 			})
 			return
 		}
 	} else {
 		if flag, oldURL := utils.CheckCollisions(db, []byte("w:"), body.URL); flag {
-			c.JSON(http.StatusOK, Response{
-				URL:    body.URL,
-				NewURL: oldURL,
+			c.JSON(http.StatusOK, models.Response{
+				URL:     body.URL,
+				NewURL:  oldURL,
+				Message: "Success: Requested URL already exists, returning old URL",
 			})
 			return
 		}
@@ -76,15 +72,17 @@ func ShortenURL(db *badger.DB, c *gin.Context) {
 	}
 
 	if flag, message := utils.WriteToDB(db, body.URL, newURL); !flag {
-		c.JSON(http.StatusInternalServerError, gin.H{
-			"error":   "Internal server error",
-			"message": message,
+		c.JSON(http.StatusBadRequest, models.Response{
+			URL:     body.URL,
+			NewURL:  "",
+			Message: "Internal server error: " + message,
 		})
 		return
 	}
 
-	c.JSON(http.StatusOK, Response{
-		URL:    body.URL,
-		NewURL: newURL,
+	c.JSON(http.StatusOK, models.Response{
+		URL:     body.URL,
+		NewURL:  newURL,
+		Message: "Success: URL shortened",
 	})
 }

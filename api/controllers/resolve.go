@@ -5,6 +5,7 @@ import (
 
 	"github.com/dgraph-io/badger/v4"
 	"github.com/gin-gonic/gin"
+	"github.com/sankalp-12/clip-url/models"
 	"github.com/sankalp-12/clip-url/utils"
 )
 
@@ -16,8 +17,9 @@ func ResolveURL(db *badger.DB, c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusNotFound, gin.H{
-		"error":   "URL not found",
-		"message": "The requested URL does not exist",
+	c.JSON(http.StatusBadRequest, models.Response{
+		URL:     url,
+		NewURL:  "",
+		Message: "Bad request: The URL does not exist",
 	})
 }
