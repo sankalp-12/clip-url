@@ -34,19 +34,19 @@ func WriteToDB(db *badger.DB, oldURL string, newURL string) (bool, string) {
 	value := []byte(newURL)
 	err := txn.Set(key, value)
 	if err != nil {
-		return false, "Unable to write to the DB"
+		return false, "Unable to write to BadgerDB"
 	}
 
 	key = []byte(fmt.Sprintf("r:%s", newURL))
 	value = []byte(oldURL)
 	err = txn.Set(key, value)
 	if err != nil {
-		return false, "Unable to write to the DB"
+		return false, "Unable to write to BadgerDB"
 	}
 
 	if err = txn.Commit(); err != nil {
-		return false, "Unable to commit transaction to the DB"
+		return false, "Unable to commit transaction to BadgerDB"
 	}
 
-	return true, "Write successful"
+	return true, "Successfully written to BadgerDB"
 }

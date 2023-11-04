@@ -33,7 +33,7 @@ func ShortenURL(db *badger.DB, c *gin.Context) {
 	if !govalidator.IsURL(body.URL) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error":   "Bad request",
-			"message": "Invalid URL",
+			"message": "URL requested is invalid",
 		})
 		return
 	}

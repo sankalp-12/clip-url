@@ -17,7 +17,7 @@ func main() {
 
 	db, err := database.CreateClient()
 	if err != nil {
-		log.Fatalln("Internal server error: Unable to connect to the DB")
+		log.Fatalln("Internal server error: Unable to connect to BadgerDB")
 	}
 
 	r := routes.SetupRouter(db)

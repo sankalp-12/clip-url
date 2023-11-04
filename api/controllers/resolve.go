@@ -18,6 +18,6 @@ func ResolveURL(db *badger.DB, c *gin.Context) {
 
 	c.JSON(http.StatusNotFound, gin.H{
 		"error":   "URL not found",
-		"message": "The requested URL does not exist in the DB",
+		"message": "The requested URL does not exist",
 	})
 }

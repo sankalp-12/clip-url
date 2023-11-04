@@ -9,7 +9,7 @@ import (
 func CreateClient() (*badger.DB, error) {
 	db, err := badger.Open(badger.DefaultOptions("./data"))
 	if err != nil {
-		fmt.Println("Unable to connect to the DB")
+		fmt.Println("Unable to connect to BadgerDB")
 		return nil, err
 	}
 
