@@ -3,6 +3,7 @@ package controllers
 import (
 	"context"
 	"log"
+	"os"
 
 	"github.com/asaskevich/govalidator"
 	"github.com/sankalp-12/clip-url/utils"
@@ -19,6 +20,7 @@ func SetupWatcher(ctx context.Context) {
 		}
 		if govalidator.IsURL(string(data)) {
 			if flag, url := utils.Put(ctx, string(data)); flag {
+				url = os.Getenv("DOMAIN") + os.Getenv("API") + url
 				lastWrite = url
 				clipboard.Write(clipboard.FmtText, []byte(url))
 			}
