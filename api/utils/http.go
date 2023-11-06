@@ -13,7 +13,7 @@ import (
 )
 
 func Put(ctx context.Context, data string) (bool, string) {
-	url := "http://localhost:8080/api/v1/shorten"
+	url := "http://localhost:8000/api/v1/shorten"
 
 	body := fmt.Sprintf(`{"url": "%s"}`, string(data))
 

@@ -6,6 +6,9 @@
 *.dylib
 *.env
 
+# Remove node_modules
+/frontend/node_modules/
+
 # Test binary, build with `go test -c`
 *.test
 
