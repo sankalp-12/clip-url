@@ -10,6 +10,11 @@ require (
 )
 
 require (
+	github.com/apapsch/go-jsonmerge/v2 v2.0.0 // indirect
+	github.com/deepmap/oapi-codegen v1.12.4 // indirect
+	github.com/influxdata/influxdb-client-go v1.4.0 // indirect
+	github.com/influxdata/influxdb-client-go/v2 v2.12.4 // indirect
+	github.com/influxdata/line-protocol v0.0.0-20200327222509-2487e7298839 // indirect
 	golang.org/x/exp v0.0.0-20190731235908-ec7cb31e5a56 // indirect
 	golang.org/x/image v0.6.0 // indirect
 	golang.org/x/mobile v0.0.0-20230301163155-e0f57694e12c // indirect

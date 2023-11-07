@@ -12,6 +12,7 @@ import (
 )
 
 func ShortenURL(db *badger.DB, c *gin.Context) {
+
 	body := new(models.Request)
 	if err := c.ShouldBindJSON(&body); err != nil {
 		c.JSON(http.StatusBadRequest, models.Response{
