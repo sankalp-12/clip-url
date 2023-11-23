@@ -1,0 +1,36 @@
+/* Table component styling */
+
+.tableContainer {
+    margin: 20px;
+  }
+  
+  .styledTable {
+    width: 100%;
+    border-collapse: collapse;
+    border-spacing: 0;
+    background-color: #fff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.1);
+  }
+  
+  .styled-table th,
+  .styled-table td {
+    padding: 12px 15px;
+    text-align: left;
+  }
+  
+  .styled-table th {
+    background-color: #f5f5f5;
+    font-weight: bold;
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .styled-table td {
+    border-bottom: 1px solid #e0e0e0;
+  }
+  
+  .styled-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+  

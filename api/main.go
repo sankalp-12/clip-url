@@ -24,7 +24,7 @@ func main() {
 	}
 
 	org := "Gofers"
-	bucket := "Clip-URL"
+	bucket := "clip-url"
 	influx_client := database.CreateInfluxClient()
 	defer influx_client.Close()
 	write_api := influx_client.WriteAPIBlocking(org, bucket)

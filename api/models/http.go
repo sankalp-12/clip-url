@@ -10,3 +10,9 @@ type Response struct {
 	NewURL  string `json:"new_url,omitempty"`
 	Message string `json:"message,omitempty"`
 }
+
+type ResponseData struct {
+	Message string            `json:"message,omitempty"`
+	Error   int               `json:"error,omitempty"`
+	Data    map[string]string `json:"data,omitempty"`
+}

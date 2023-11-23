@@ -2,6 +2,7 @@ package utils
 
 import (
 	"fmt"
+	"strings"
 
 	"github.com/dgraph-io/badger/v4"
 )
@@ -24,6 +25,42 @@ func CheckCollisions(db *badger.DB, prefix []byte, url string) (bool, string) {
 	}
 
 	return false, ""
+}
+
+func ReturnAllData(db *badger.DB) (bool, map[string]string) {
+
+	allValues := make(map[string]string)
+	err := db.View(func(txn *badger.Txn) error {
+		iterator := txn.NewIterator(badger.DefaultIteratorOptions)
+		defer iterator.Close()
+
+		for iterator.Rewind(); iterator.Valid(); iterator.Next() {
+			item := iterator.Item()
+
+			// Get the key
+			key := item.Key()
+
+			// Get the value
+			var value []byte
+			err := item.Value(func(val []byte) error {
+				value = append([]byte{}, val...)
+				return nil
+			})
+			if err != nil {
+				return err
+			}
+			if string(key)[0] == 'r' {
+				// Process the key-value pair
+				allValues[strings.Split(string(key), ":")[1]] = string(value)
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		fmt.Println("Some issue here")
+		return false, map[string]string{}
+	}
+	return true, allValues
 }
 
 func WriteToDB(db *badger.DB, oldURL string, newURL string) (bool, string) {

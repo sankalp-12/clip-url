@@ -1,5 +1,6 @@
 import './App.css';
 import Header from './components/Header/header';
+import Table from './components/Table/table';
 
 function App() {
   return (
@@ -7,6 +8,7 @@ function App() {
     {/* Header */}
     <Header/>
     {/* Table */}
+    <Table></Table>
     </div>
   );
 }
